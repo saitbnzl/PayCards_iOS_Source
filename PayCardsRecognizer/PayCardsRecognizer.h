@@ -4,7 +4,7 @@
 //
 //  Created by Vitaliy Kuzmenko on 12/07/2017.
 //  Copyright © 2017 Wallet One. All rights reserved.
-//
+//  Test
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>

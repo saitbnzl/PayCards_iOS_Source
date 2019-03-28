@@ -131,11 +131,15 @@ using namespace std;
 
 @property (nonatomic, strong) UIButton *copyrightButton;
 
+@property (nonatomic, strong) UIButton *flashButton;
+
 @property (nonatomic, assign) PayCardsRecognizerResultMode resultMode;
 
 @property (nonatomic, assign) PayCardsRecognizerMode recognizerMode;
 
 @property (nonatomic, strong) UIColor *frameColor;
+
+@property (nonatomic, assign) BOOL flashMode;
 
 @end
 
@@ -157,6 +161,7 @@ using namespace std;
         self.resultMode = resultMode;
         self.recognizerMode = recognizerModeInternal;
         self.frameColor = frameColor;
+        self.flashMode = false;
         
         if([[UIDevice currentDevice]userInterfaceIdiom] == UIUserInterfaceIdiomPhone && [[UIScreen mainScreen] bounds].size.height == 480) {
             _captureAreaWidth = 16;
@@ -269,6 +274,7 @@ using namespace std;
 
 - (void)torchStatusDidChange:(BOOL)status {
     [self.videoCamera turnTorchOn:status withValue:0.1];
+    self.flashMode = status;
 }
 
 - (void)turnTorchOn:(BOOL)on withValue:(float)value {
@@ -457,11 +463,31 @@ using namespace std;
     [_view addConstraintWithItem:self.labelsHolderView attribute:NSLayoutAttributeBottom toItem:self.frameImageView];
     [_view addConstraintWithItem:self.labelsHolderView attribute:NSLayoutAttributeLeft toItem:self.frameImageView];
     
-    [_view addSubview:self.copyrightButton];
+//    [_view addSubview:self.copyrightButton];
+//
+//    [_view addConstraintWithItem:self.copyrightButton attribute:NSLayoutAttributeLeft toItem:_view attribute:NSLayoutAttributeLeft constant:8];
+//    [_view addConstraintWithItem:self.copyrightButton attribute:NSLayoutAttributeBottom toItem:_view attribute:NSLayoutAttributeBottom constant:-4];
     
-    [_view addConstraintWithItem:self.copyrightButton attribute:NSLayoutAttributeLeft toItem:_view attribute:NSLayoutAttributeLeft constant:8];
-    [_view addConstraintWithItem:self.copyrightButton attribute:NSLayoutAttributeBottom toItem:_view attribute:NSLayoutAttributeBottom constant:-4];
+    [_view addSubview:self.flashButton];
     
+    [_view addConstraintWithItem:self.flashButton attribute:NSLayoutAttributeLeft toItem:_view attribute:NSLayoutAttributeLeft constant:15];
+    [_view addConstraintWithItem:self.flashButton attribute:NSLayoutAttributeTop toItem:_view attribute:NSLayoutAttributeTop constant:15];
+    
+    [_view addConstraint:[NSLayoutConstraint constraintWithItem:self.flashButton
+                                                     attribute:NSLayoutAttributeWidth
+                                                     relatedBy:NSLayoutRelationEqual
+                                                        toItem:nil
+                                                     attribute:NSLayoutAttributeNotAnAttribute
+                                                    multiplier:1.0
+                                                      constant:50.0]];
+    [_view addConstraint:[NSLayoutConstraint constraintWithItem:self.flashButton
+                                                      attribute:NSLayoutAttributeHeight
+                                                      relatedBy:NSLayoutRelationEqual
+                                                         toItem:nil
+                                                      attribute:NSLayoutAttributeNotAnAttribute
+                                                     multiplier:1.0
+                                                       constant:50.0]];
+
     return _view;
 }
 
@@ -596,10 +622,37 @@ using namespace std;
     return _copyrightButton;
 }
 
+-(UIButton *)flashButton {
+    if (_flashButton) {
+        return _flashButton;
+    }
+
+    _flashButton = [UIButton buttonWithType:UIButtonTypeCustom];
+     UIImage *imageToSet = [UIImage imageWithContentsOfFile:[self pathToResource:@"flash.png"]];
+    if(imageToSet){
+        [_flashButton setImage:imageToSet forState:UIControlStateNormal];
+        _flashButton.tintColor = [UIColor whiteColor];
+    }else{
+        NSLog(@"why?");
+    }
+    _flashButton.contentEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 10);
+
+    [_flashButton setBackgroundColor:[UIColor colorWithRed:0 green:0 blue:0 alpha:0.33]];
+    _flashButton.translatesAutoresizingMaskIntoConstraints = NO;
+    [_flashButton addTarget:self action:@selector(tapFlashButton) forControlEvents:UIControlEventTouchUpInside];
+    
+    return _flashButton;
+}
+
 - (void)tapCopyright {
     [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"http://pay.cards"] options:@{} completionHandler:^(BOOL success) {
         
     }];
+}
+
+- (void)tapFlashButton {
+    [self turnTorchOn:!self.flashMode withValue:1.0];
+    self.flashMode = !self.flashMode;
 }
 
 @end
