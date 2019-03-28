@@ -31,6 +31,7 @@
 #import "WOTorchDelegate.h"
 #import "Enums.h"
 
+
 NSString* const WOCardNumber = @"RecognizedCardNumber";
 NSString* const WOExpDate = @"RecognizedExpDate";
 NSString* const WOHolderName = @"RecognizedHolderName";
@@ -129,7 +130,7 @@ using namespace std;
 
 @property (nonatomic, strong) UILabel *recognizedDateLabel;
 
-@property (nonatomic, strong) UIButton *copyrightButton;
+@property (nonatomic, strong) UIButton *cancelButton;
 
 @property (nonatomic, strong) UIButton *flashButton;
 
@@ -463,15 +464,15 @@ using namespace std;
     [_view addConstraintWithItem:self.labelsHolderView attribute:NSLayoutAttributeBottom toItem:self.frameImageView];
     [_view addConstraintWithItem:self.labelsHolderView attribute:NSLayoutAttributeLeft toItem:self.frameImageView];
     
-//    [_view addSubview:self.copyrightButton];
-//
-//    [_view addConstraintWithItem:self.copyrightButton attribute:NSLayoutAttributeLeft toItem:_view attribute:NSLayoutAttributeLeft constant:8];
-//    [_view addConstraintWithItem:self.copyrightButton attribute:NSLayoutAttributeBottom toItem:_view attribute:NSLayoutAttributeBottom constant:-4];
+    [_view addSubview:self.cancelButton];
+
+    [_view addConstraintWithItem:self.cancelButton attribute:NSLayoutAttributeLeft toItem:_view attribute:NSLayoutAttributeLeft constant:8];
+    [_view addConstraintWithItem:self.cancelButton attribute:NSLayoutAttributeBottom toItem:_view attribute:NSLayoutAttributeBottom constant:-4];
     
     [_view addSubview:self.flashButton];
     
     [_view addConstraintWithItem:self.flashButton attribute:NSLayoutAttributeLeft toItem:_view attribute:NSLayoutAttributeLeft constant:15];
-    [_view addConstraintWithItem:self.flashButton attribute:NSLayoutAttributeTop toItem:_view attribute:NSLayoutAttributeTop constant:15];
+    [_view addConstraintWithItem:self.flashButton attribute:NSLayoutAttributeTop toItem:_view attribute:NSLayoutAttributeTop constant:20];
     
     [_view addConstraint:[NSLayoutConstraint constraintWithItem:self.flashButton
                                                      attribute:NSLayoutAttributeWidth
@@ -605,21 +606,21 @@ using namespace std;
     return _recognizedNameLabel;
 }
 
--(UIButton *)copyrightButton {
-    if (_copyrightButton) {
-        return _copyrightButton;
+-(UIButton *)cancelButton {
+    if (_cancelButton) {
+        return _cancelButton;
     }
     
-    NSDictionary *attributes = @{NSFontAttributeName: [UIFont systemFontOfSize:10], NSForegroundColorAttributeName: [UIColor colorWithWhite:1 alpha:0.5], NSUnderlineStyleAttributeName: @(NSUnderlineStyleSingle)};
+    NSDictionary *attributes = @{NSFontAttributeName: [UIFont systemFontOfSize:16], NSForegroundColorAttributeName: [UIColor colorWithWhite:1 alpha:0.5], NSUnderlineStyleAttributeName: @(NSUnderlineStyleNone)};
+
+    NSAttributedString *attributedTitle = [[NSAttributedString alloc] initWithString:@"İptal" attributes:attributes]; // TODO: Localization
     
-    //NSAttributedString *attributedTitle = [[NSAttributedString alloc] initWithString:NSLocalizedString(@"Powered by pay.cards", "") attributes:attributes];
+    _cancelButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    _cancelButton.translatesAutoresizingMaskIntoConstraints = NO;
+    [_cancelButton setAttributedTitle:attributedTitle forState:UIControlStateNormal];
+    [_cancelButton addTarget:self action:@selector(tapCancel) forControlEvents:UIControlEventTouchUpInside];
     
-    _copyrightButton = [UIButton buttonWithType:UIButtonTypeSystem];
-    _copyrightButton.translatesAutoresizingMaskIntoConstraints = NO;
-    //[_copyrightButton setAttributedTitle:attributedTitle forState:UIControlStateNormal];
-    [_copyrightButton addTarget:self action:@selector(tapCopyright) forControlEvents:UIControlEventTouchUpInside];
-    
-    return _copyrightButton;
+    return _cancelButton;
 }
 
 -(UIButton *)flashButton {
@@ -644,10 +645,13 @@ using namespace std;
     return _flashButton;
 }
 
-- (void)tapCopyright {
-    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"http://pay.cards"] options:@{} completionHandler:^(BOOL success) {
-        
-    }];
+- (void)tapCancel {
+    PayCardsRecognizerResult *result = [[PayCardsRecognizerResult alloc] init];
+    result.recognizedNumber = @"5486123456789012";
+    result.recognizedHolderName = @"MARK KUZMENKO";
+    result.recognizedExpireDateMonth = @"04";
+    result.recognizedExpireDateYear = @"22";
+    [self.delegate payCardsRecognizer:self didCancel:result];
 }
 
 - (void)tapFlashButton {
