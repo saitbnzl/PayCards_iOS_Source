@@ -89,7 +89,6 @@ void CRecognitionCoreDelegate::CardImageDidExtract(cv::Mat cardImage)
 
 - (void)recognitionDidFinish:(std::shared_ptr<IRecognitionResult>)result flags:(PayCardsRecognizerMode)flags
 {
-    
     if (_result == nil) {
         _result = [[PayCardsRecognizerResult alloc] init];
         _result.dictionary = [NSMutableDictionary<NSString*, id> dictionary];
@@ -234,14 +233,12 @@ void CRecognitionCoreDelegate::CardImageDidExtract(cv::Mat cardImage)
                 }
             }
             
-            if (self.numberIsFilled && self.exirationIsFilled && self.nameIsFilled && self.imageIsFilled) {
+            if (true) {
                 dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
                     
                     [_delegate payCardsRecognizer:_recognizer didRecognize:_result];
-                    
-                    if (_result.isCompleted) {
-                        _result = nil;
-                    }
+                    _result = nil;
+
                 });
             }
         }
