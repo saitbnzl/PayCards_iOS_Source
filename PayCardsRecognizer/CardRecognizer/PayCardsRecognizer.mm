@@ -466,8 +466,22 @@ using namespace std;
     
     [_view addSubview:self.cancelButton];
 
-    [_view addConstraintWithItem:self.cancelButton attribute:NSLayoutAttributeLeft toItem:_view attribute:NSLayoutAttributeLeft constant:8];
-    [_view addConstraintWithItem:self.cancelButton attribute:NSLayoutAttributeBottom toItem:_view attribute:NSLayoutAttributeBottom constant:-4];
+    [_view addConstraint:[NSLayoutConstraint constraintWithItem:self.cancelButton
+                                                      attribute:NSLayoutAttributeWidth
+                                                      relatedBy:NSLayoutRelationEqual
+                                                         toItem:nil
+                                                      attribute:NSLayoutAttributeNotAnAttribute
+                                                     multiplier:1.0
+                                                       constant:[UIScreen mainScreen].bounds.size.width]];
+    [_view addConstraint:[NSLayoutConstraint constraintWithItem:self.cancelButton
+                                                      attribute:NSLayoutAttributeHeight
+                                                      relatedBy:NSLayoutRelationEqual
+                                                         toItem:nil
+                                                      attribute:NSLayoutAttributeNotAnAttribute
+                                                     multiplier:1.0
+                                                       constant:50.0]];
+    [_view addConstraintWithItem:self.cancelButton attribute:NSLayoutAttributeLeft toItem:_view attribute:NSLayoutAttributeLeft constant:0];
+    [_view addConstraintWithItem:self.cancelButton attribute:NSLayoutAttributeBottom toItem:_view attribute:NSLayoutAttributeBottom constant:0];
     
     [_view addSubview:self.flashButton];
     
@@ -610,12 +624,13 @@ using namespace std;
     if (_cancelButton) {
         return _cancelButton;
     }
-    
-    NSDictionary *attributes = @{NSFontAttributeName: [UIFont systemFontOfSize:16], NSForegroundColorAttributeName: [UIColor colorWithWhite:1 alpha:0.5], NSUnderlineStyleAttributeName: @(NSUnderlineStyleNone)};
+    _cancelButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    NSDictionary *attributes = @{NSFontAttributeName: [UIFont systemFontOfSize:20], NSForegroundColorAttributeName: [UIColor colorWithWhite:1 alpha:0.8], NSUnderlineStyleAttributeName: @(NSUnderlineStyleNone)};
 
     NSAttributedString *attributedTitle = [[NSAttributedString alloc] initWithString:@"İptal" attributes:attributes]; // TODO: Localization
-    
-    _cancelButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    _cancelButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentCenter;
+    _cancelButton.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
+    [_cancelButton setBackgroundColor:[UIColor colorWithRed:0 green:0 blue:0 alpha:0.33]];
     _cancelButton.translatesAutoresizingMaskIntoConstraints = NO;
     [_cancelButton setAttributedTitle:attributedTitle forState:UIControlStateNormal];
     [_cancelButton addTarget:self action:@selector(tapCancel) forControlEvents:UIControlEventTouchUpInside];
